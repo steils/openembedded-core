@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd ./test
+for t in *
+do
+	./$t
+	if [ $? -eq 0 ]
+	then
+		echo "PASS: $t"
+	else
+		echo "FAIL: $t"
+	fi
+done

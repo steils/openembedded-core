@@ -35,7 +35,7 @@ PACKAGECONFIG[dbus] = "--enable-dbus,--disable-dbus,dbus"
 PACKAGECONFIG[gtk] = "--enable-gtk,--disable-gtk,gtk+"
 PACKAGECONFIG[gtk3] = "--enable-gtk3,--disable-gtk3,gtk+3"
 
-inherit autotools pkgconfig gettext gobject-introspection
+inherit autotools pkgconfig gettext gobject-introspection ptest
 
 EXTRA_OECONF = "--with-avahi-priv-access-group=adm \
              --disable-stack-protector \
@@ -49,11 +49,13 @@ EXTRA_OECONF = "--with-avahi-priv-access-group=adm \
              --enable-manpages \
              ${EXTRA_OECONF_SYSVINIT} \
              ${EXTRA_OECONF_SYSTEMD} \
+             ${EXTRA_OECONF_PTEST} \
            "
 
 # The distro choice determines what init scripts are installed
 EXTRA_OECONF_SYSVINIT = "${@bb.utils.contains('DISTRO_FEATURES','sysvinit','--with-distro=debian','--with-distro=none',d)}"
 EXTRA_OECONF_SYSTEMD = "${@bb.utils.contains('DISTRO_FEATURES','systemd','--with-systemdsystemunitdir=${systemd_unitdir}/system/','--without-systemdsystemunitdir',d)}"
+EXTRA_OECONF_PTEST = "${@bb.utils.contains('PTEST_ENABLED','1','--enable-tests','',d)}"
 
 do_configure_prepend() {
     sed 's:AM_CHECK_PYMOD:echo "no pymod" #AM_CHECK_PYMOD:g' -i ${S}/configure.ac
@@ -66,6 +68,7 @@ do_compile_prepend() {
     export GIR_EXTRA_LIBS_PATH="${B}/avahi-gobject/.libs:${B}/avahi-common/.libs:${B}/avahi-client/.libs:${B}/avahi-glib/.libs"
 }
 
+RDEPENDS_${PN}-ptest = "bash"
 RRECOMMENDS_${PN}_append_libc-glibc = " libnss-mdns"
 
 do_install() {
@@ -74,4 +77,14 @@ do_install() {
 	rm -rf ${D}${datadir}/dbus-1/interfaces
 	test -d ${D}${datadir}/dbus-1 && rmdir --ignore-fail-on-non-empty ${D}${datadir}/dbus-1
 	rm -rf ${D}${libdir}/avahi
+}
+
+do_install_ptest () {
+    install -d ${D}${PTEST_PATH}/test/.libs
+    for t in dns-spin-test dns-test hashmap-test
+    do
+        install -m 0755 ${B}/avahi-core/$t ${D}${PTEST_PATH}/test/
+        sed -e 's/^relink_command=\"\(.*\)\"/relink_command=\"\"/' -i ${D}${PTEST_PATH}/test/$t
+        install -m 0755 ${B}/avahi-core/.libs/$t ${D}${PTEST_PATH}/test/.libs/lt-$t
+    done
 }

@@ -4,6 +4,7 @@ SRC_URI += "file://00avahi-autoipd \
            file://99avahi-autoipd \
            file://initscript.patch \
            file://0001-Fix-opening-etc-resolv.conf-error.patch \
+           file://run-ptest \
            "
 
 inherit update-rc.d systemd useradd
