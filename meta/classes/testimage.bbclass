@@ -40,12 +40,12 @@ TEST_NEEDED_PACKAGES_DIR ?= "${WORKDIR}/testimage/packages"
 TEST_EXTRACTED_DIR ?= "${TEST_NEEDED_PACKAGES_DIR}/extracted"
 TEST_PACKAGED_DIR ?= "${TEST_NEEDED_PACKAGES_DIR}/packaged"
 
-BASICTESTSUITE = "ping date df ssh scp python perl apt opkg gi ptest dnf rpm parselogs logrotate connman systemd oe_syslog pam stap ldd xorg"
-DEVTESTSUITE = "gcc kernelmodule buildcpio buildlzip buildgalculator "
+BASICTESTSUITE = "\
+    ping date df ssh scp python perl apt opkg gi ptest dnf rpm parselogs \
+    logrotate connman systemd oe_syslog pam stap ldd xorg kernelmodule gcc \
+    buildcpio buildlzip buildgalculator"
 
 DEFAULT_TEST_SUITES = "${BASICTESTSUITE}"
-DEFAULT_TEST_SUITES_pn-core-image-sato-sdk = "${BASICTESTSUITE} ${DEVTESTSUITE}"
-DEFAULT_TEST_SUITES_pn-core-image-lsb-sdk = "${BASICTESTSUITE} ${DEVTESTSUITE}"
 
 # aarch64 has no graphics
 DEFAULT_TEST_SUITES_remove_aarch64 = "xorg"
